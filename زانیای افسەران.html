@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0d1b2a">
+<title>هۆبەی دۆسیە</title>
+<style>
+:root{
+  --bg:#0d1b2a;
+  --card:#152232;
+  --card2:#1c2e42;
+  --border:#1e3348;
+  --green:#00e676;
+  --green2:#00c853;
+  --yellow:#ffd600;
+  --orange:#ff6d00;
+  --red:#ff1744;
+  --purple:#aa00ff;
+  --blue:#2979ff;
+  --text:#e8f0fe;
+  --muted:#546e7a;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:'Segoe UI',Tahoma,sans-serif}
+body{display:flex;flex-direction:column}
+
+/* هێدەر */
+.hdr{background:linear-gradient(135deg,#0d1b2a,#152232);padding:12px 16px 10px;text-align:center;border-bottom:2px solid var(--green);flex-shrink:0;position:relative}
+.hdr h1{font-size:15px;color:var(--green);font-weight:700;letter-spacing:.5px}
+.hdr p{font-size:10px;color:var(--muted);margin-top:2px}
+.hdr-count{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:var(--purple);color:white;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+
+/* تابەکان */
+.tabs{display:flex;background:#0a1520;border-bottom:1px solid var(--border);flex-shrink:0}
+.tab{flex:1;padding:10px 2px;text-align:center;font-size:11px;font-weight:700;color:var(--muted);border:none;background:none;cursor:pointer;transition:.2s;white-space:nowrap}
+.tab.on{color:var(--green);box-shadow:0 -2px 0 var(--green) inset}
+
+/* بەشەکان */
+.pages{flex:1;overflow:hidden;position:relative}
+.page{position:absolute;inset:0;overflow-y:auto;display:none;padding:12px}
+.page.on{display:block}
+
+/* کارت */
+.card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+.card-title{font-size:13px;font-weight:700;color:var(--yellow);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+/* فۆرم */
+.fld{margin-bottom:10px}
+.fld label{display:block;font-size:12px;font-weight:700;color:var(--yellow);margin-bottom:5px}
+.frow{display:flex;gap:6px;align-items:stretch}
+.frow input,.frow select{flex:1}
+input,select{width:100%;padding:11px 12px;font-size:14px;border-radius:10px;border:1.5px solid var(--border);background:#0a1520;color:var(--text);direction:rtl;outline:none;-webkit-appearance:none;appearance:none;font-family:inherit}
+input:focus,select:focus{border-color:var(--green);background:#0d1f2d}
+select option{background:#0d1b2a}
+
+/* دوگمەی مایک */
+.mic{width:46px;height:46px;border-radius:10px;border:none;background:var(--orange);color:white;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s}
+.mic.listening{background:var(--red);animation:beat .6s infinite}
+.mic.done{background:var(--green2)}
+@keyframes beat{0%,100%{transform:scale(1)}50%{transform:scale(.92)}}
+
+/* دوگمەکان */
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;letter-spacing:.3px}
+.btn:active{transform:scale(.97)}
+.btn-green{background:linear-gradient(135deg,var(--green),var(--green2));color:#0d1b2a}
+.btn-orange{background:linear-gradient(135deg,var(--orange),#e65100);color:white}
+.btn-purple{background:linear-gradient(135deg,var(--purple),#6200ea);color:white}
+.btn-red{background:linear-gradient(135deg,var(--red),#b71c1c);color:white}
+.btn-blue{background:linear-gradient(135deg,var(--blue),#1565c0);color:white}
+.btn-sm{padding:9px 14px;font-size:13px;width:auto;border-radius:8px}
+
+/* پەیام */
+.msg{text-align:center;padding:10px;border-radius:10px;font-size:13px;margin-top:8px;min-height:0;transition:.3s}
+.msg.ok{background:rgba(0,230,118,.12);color:var(--green);border:1px solid rgba(0,230,118,.2)}
+.msg.err{background:rgba(255,23,68,.12);color:var(--red);border:1px solid rgba(255,23,68,.2)}
+.msg.info{background:rgba(41,121,255,.12);color:#82b1ff;border:1px solid rgba(41,121,255,.2)}
+
+/* دەنگی جوملەی تەواو */
+.voice-big{background:linear-gradient(135deg,#1a0533,#152232);border:2px solid var(--purple);border-radius:var(--radius);padding:16px;margin-bottom:12px}
+.voice-big .hint{font-size:12px;color:var(--muted);text-align:center;line-height:1.7;margin:8px 0 12px}
+.voice-big .hint b{color:var(--text)}
+.voice-result{background:#0a1520;border-radius:8px;padding:10px;font-size:13px;color:var(--green);text-align:center;margin-top:10px;min-height:38px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border)}
+.voice-anim{width:60px;height:60px;border-radius:50%;background:var(--purple);margin:0 auto 12px;display:flex;align-items:center;justify-content:center;font-size:26px;transition:.3s}
+.voice-anim.active{animation:glow .8s infinite alternate}
+@keyframes glow{from{box-shadow:0 0 10px var(--purple)}to{box-shadow:0 0 30px var(--purple),0 0 60px rgba(170,0,255,.4)}}
+
+/* پێشبینی دەنگ */
+.preview-card{background:var(--card2);border-radius:var(--radius);padding:14px;margin-top:12px;border:1px solid var(--purple)}
+.preview-card .label{font-size:11px;color:var(--muted);margin-bottom:3px}
+.preview-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.preview-row:last-child{border-bottom:none}
+.preview-val{font-size:14px;font-weight:600;color:var(--text)}
+
+/* لیست */
+.search-wrap{background:var(--card);border-radius:var(--radius);padding:10px;margin-bottom:8px;display:flex;gap:8px;align-items:center;border:1px solid var(--border)}
+.search-wrap input{flex:1;margin:0;padding:9px 10px;font-size:13px}
+.cnt{background:var(--purple);color:white;border-radius:16px;padding:3px 10px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+.filter-row{display:flex;gap:6px;margin-bottom:8px}
+.filter-row select{flex:1;font-size:12px;padding:9px 10px}
+.ocard{background:var(--card);border-radius:12px;padding:12px;margin-bottom:8px;border-right:3px solid var(--green);border:1px solid var(--border);border-right:3px solid var(--green)}
+.ocard:active{transform:scale(.98)}
+.oname{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.obadges{display:flex;flex-wrap:wrap;gap:5px}
+.badge{border-radius:12px;padding:3px 9px;font-size:11px;font-weight:600}
+.b-rank{background:rgba(41,121,255,.15);color:#82b1ff;border:1px solid rgba(41,121,255,.2)}
+.b-file{background:rgba(255,109,0,.15);color:#ffab40;border:1px solid rgba(255,109,0,.2)}
+.b-unit{background:rgba(170,0,255,.15);color:#ce93d8;border:1px solid rgba(170,0,255,.2)}
+.b-upen{background:rgba(84,110,122,.15);color:var(--muted);border:1px solid rgba(84,110,122,.2)}
+.nodata{text-align:center;padding:50px 20px;color:var(--muted);font-size:14px}
+
+/* تابی زانیاری */
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.stat-row:last-child{border-bottom:none}
+.stat-label{font-size:12px;color:var(--muted)}
+.stat-val{font-size:14px;font-weight:700;color:var(--text)}
+.export-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6}
+
+/* سکرۆڵبار */
+.page::-webkit-scrollbar{width:3px}
+.page::-webkit-scrollbar-track{background:transparent}
+.page::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <h1>🏛️ فەرماندەیی دەڤەری 1</h1>
+  <p>بەشی ئیدارەی ئەفسەران — هۆبەی دۆسیە</p>
+  <div class="hdr-count" id="hdr-count">٠</div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="goTab('add',this)">➕ داخل</button>
+  <button class="tab" onclick="goTab('voice',this)">🎤 دەنگ</button>
+  <button class="tab" onclick="goTab('list',this)">📋 لیست</button>
+  <button class="tab" onclick="goTab('info',this)">⚙️ داتا</button>
+</div>
+
+<div class="pages">
+
+  <!-- ➕ داخلکردنی دەستی -->
+  <div class="page on" id="pg-add">
+    <div class="card">
+      <div class="card-title">✏️ داخلکردنی زانیاری ئەفسەر</div>
+
+      <div class="fld">
+        <label>ناوی تەواو</label>
+        <div class="frow">
+          <input type="text" id="f-name" placeholder="ناوی تەواو" autocomplete="off">
+          <button class="mic" id="m-name" onclick="micField('f-name','text','m-name')">🎤</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>پلە</label>
+        <div class="frow">
+          <select id="f-rank">
+            <option value="">-- پلە دیاری بکە --</option>
+            <option>ملازم</option><option>ملازم اول</option>
+            <option>نقیب</option><option>نقیب رکن</option>
+            <option>رائد</option><option>رائد رکن</option>
+            <option>مقدم</option><option>مقدم رکن</option>
+            <option>عقید</option><option>عقید رکن</option>
+            <option>عمید</option><option>عمید رکن</option>
+            <option>لیواء</option><option>لیواء رکن</option>
+            <option>فریق</option><option>فریق رکن</option>
+          </select>
+          <button class="mic" id="m-rank" onclick="micField('f-rank','rank','m-rank')">🎤</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>ژمارەی فایل</label>
+        <div class="frow">
+          <input type="number" id="f-file" placeholder="ژمارەی فایل" inputmode="numeric">
+          <button class="mic" id="m-file" onclick="micField('f-file','num','m-file')">🎤</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>یەکە (Unit)</label>
+        <div class="frow">
+          <select id="f-unit">
+            <option value="">-- یەکە دیاری بکە --</option>
+            <option>ب- دەڤەر</option><option>ب-کارگێری</option>
+            <option>ب-هەواڵگری</option><option>ب-هەماهەنگی و پەیوەندیەکان</option>
+            <option>ب-گەیاندن</option><option>ب-ڕاگەیاندن</option>
+            <option>ب-ژمێریاری سەربازی</option><option>ب- وردبینی و چاودێری</option>
+            <option>ب-میـرە</option><option>ب-خزمەت گوزاریەکان</option>
+            <option>ب-پرۆژەکان</option><option>ب-ئۆپەراسیۆنەکان</option>
+            <option>ب-بنکەی زانیاریەکان</option><option>ب-بەدواداچوون و پشکنین</option>
+            <option>ب-مەشـق</option><option>ب-پژیشکــی</option>
+            <option>فەوجی بەرگی و ئەرکەکان</option><option>بارەگای لیوای کۆماندۆ</option>
+            <option>سریەی پاسـەوانی</option><option>سریەی ئینزیباتی سەربازی</option>
+            <option>سریەی وەڵام دانەوەی خێرا</option>
+            <option>فەوجی 1 کۆماندۆ</option><option>فەوجی 2 کۆماندۆ</option><option>فەوجی 3 کۆماندۆ</option>
+            <option>لستی مێوان</option>
+            <option>فرقەی 1</option><option>فرقەی 3</option><option>فرقەی 5</option>
+            <option>فرقەی 7</option><option>فرقەی9</option><option>فرقەی 11</option>
+          </select>
+          <button class="mic" id="m-unit" onclick="micField('f-unit','unit','m-unit')">🎤</button>
+        </div>
+      </div>
+
+      <div class="fld">
+        <label>Upen <span style="color:var(--muted);font-weight:400;font-size:11px">(پێویست نییە)</span></label>
+        <input type="text" id="f-upen" placeholder="Upen">
+      </div>
+
+      <button class="btn btn-green" onclick="saveManual()" style="margin-top:6px">✅ تۆمارکردن</button>
+      <div class="msg" id="msg-add"></div>
+    </div>
+  </div>
+
+  <!-- 🎤 دەنگ -->
+  <div class="page" id="pg-voice">
+    <div class="voice-big">
+      <div style="text-align:center;font-size:14px;font-weight:700;color:var(--orange);margin-bottom:4px">🎤 جوملەی تەواو بلێ</div>
+      <div class="hint">نمونە:<br><b>"نقیب محمد احمد فایل پێنج یەکە دەڤەر"</b></div>
+      <div class="voice-anim" id="v-anim">🎤</div>
+      <button class="btn btn-purple" id="btn-vfull" onclick="toggleFullVoice()">دەست بکە — بلێ</button>
+      <div class="voice-result" id="v-result" style="display:none"></div>
+    </div>
+
+    <div class="preview-card" id="v-preview" style="display:none">
+      <div class="card-title" style="margin-bottom:10px">📝 پێشبینی — دەستکاری بکە</div>
+
+      <div class="fld">
+        <label>ناوی تەواو</label>
+        <input type="text" id="vf-name" placeholder="ناو">
+      </div>
+      <div class="fld">
+        <label>پلە</label>
+        <select id="vf-rank">
+          <option value="">-- پلە --</option>
+          <option>ملازم</option><option>ملازم اول</option>
+          <option>نقیب</option><option>نقیب رکن</option>
+          <option>رائد</option><option>رائد رکن</option>
+          <option>مقدم</option><option>مقدم رکن</option>
+          <option>عقید</option><option>عقید رکن</option>
+          <option>عمید</option><option>عمید رکن</option>
+          <option>لیواء</option><option>لیواء رکن</option>
+          <option>فریق</option><option>فریق رکن</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>ژمارەی فایل</label>
+        <input type="number" id="vf-file" placeholder="فایل" inputmode="numeric">
+      </div>
+      <div class="fld">
+        <label>یەکە (Unit)</label>
+        <select id="vf-unit">
+          <option value="">-- یەکە --</option>
+          <option>ب- دەڤەر</option><option>ب-کارگێری</option>
+          <option>ب-هەواڵگری</option><option>ب-هەماهەنگی و پەیوەندیەکان</option>
+          <option>ب-گەیاندن</option><option>ب-ڕاگەیاندن</option>
+          <option>ب-ژمێریاری سەربازی</option><option>ب- وردبینی و چاودێری</option>
+          <option>ب-میـرە</option><option>ب-خزمەت گوزاریەکان</option>
+          <option>ب-پرۆژەکان</option><option>ب-ئۆپەراسیۆنەکان</option>
+          <option>ب-بنکەی زانیاریەکان</option><option>ب-بەدواداچوون و پشکنین</option>
+          <option>ب-مەشـق</option><option>ب-پژیشکــی</option>
+          <option>فەوجی بەرگی و ئەرکەکان</option><option>بارەگای لیوای کۆماندۆ</option>
+          <option>سریەی پاسـەوانی</option><option>سریەی ئینزیباتی سەربازی</option>
+          <option>سریەی وەڵام دانەوەی خێرا</option>
+          <option>فەوجی 1 کۆماندۆ</option><option>فەوجی 2 کۆماندۆ</option><option>فەوجی 3 کۆماندۆ</option>
+          <option>لستی مێوان</option>
+          <option>فرقەی 1</option><option>فرقەی 3</option><option>فرقەی 5</option>
+          <option>فرقەی 7</option><option>فرقەی9</option><option>فرقەی 11</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label>Upen</label>
+        <input type="text" id="vf-upen" placeholder="Upen (پێویست نییە)">
+      </div>
+      <button class="btn btn-orange" onclick="saveVoice()" style="margin-top:4px">✅ تۆمارکردن</button>
+      <div class="msg" id="msg-voice"></div>
+    </div>
+  </div>
+
+  <!-- 📋 لیست -->
+  <div class="page" id="pg-list">
+    <div class="search-wrap">
+      <input type="text" id="s-name" placeholder="🔍 گەڕان بە ناو..." oninput="renderList()">
+      <span class="cnt" id="s-cnt">٠</span>
+    </div>
+    <div class="filter-row">
+      <select id="s-rank" onchange="renderList()">
+        <option value="">هەموو پلەکان</option>
+        <option>ملازم</option><option>ملازم اول</option>
+        <option>نقیب</option><option>نقیب رکن</option>
+        <option>رائد</option><option>رائد رکن</option>
+        <option>مقدم</option><option>مقدم رکن</option>
+        <option>عقید</option><option>عقید رکن</option>
+        <option>عمید</option><option>عمید رکن</option>
+        <option>لیواء</option><option>لیواء رکن</option>
+        <option>فریق</option><option>فریق رکن</option>
+      </select>
+      <select id="s-unit" onchange="renderList()">
+        <option value="">هەموو یەکەکان</option>
+        <option>ب- دەڤەر</option><option>ب-کارگێری</option>
+        <option>ب-هەواڵگری</option><option>ب-هەماهەنگی و پەیوەندیەکان</option>
+        <option>ب-گەیاندن</option><option>ب-ڕاگەیاندن</option>
+        <option>ب-ژمێریاری سەربازی</option><option>ب- وردبینی و چاودێری</option>
+        <option>ب-میـرە</option><option>ب-خزمەت گوزاریەکان</option>
+        <option>ب-پرۆژەکان</option><option>ب-ئۆپەراسیۆنەکان</option>
+        <option>ب-بنکەی زانیاریەکان</option><option>ب-بەدواداچوون و پشکنین</option>
+        <option>ب-مەشـق</option><option>ب-پژیشکــی</option>
+        <option>فەوجی بەرگی و ئەرکەکان</option><option>بارەگای لیوای کۆماندۆ</option>
+        <option>سریەی پاسـەوانی</option><option>سریەی ئینزیباتی سەربازی</option>
+        <option>سریەی وەڵام دانەوەی خێرا</option>
+        <option>فەوجی 1 کۆماندۆ</option><option>فەوجی 2 کۆماندۆ</option><option>فەوجی 3 کۆماندۆ</option>
+        <option>لستی مێوان</option>
+        <option>فرقەی 1</option><option>فرقەی 3</option><option>فرقەی 5</option>
+        <option>فرقەی 7</option><option>فرقەی9</option><option>فرقەی 11</option>
+      </select>
+    </div>
+    <div id="list-body"></div>
+  </div>
+
+  <!-- ⚙️ داتا و پاشەکەوت -->
+  <div class="page" id="pg-info">
+    <div class="card">
+      <div class="card-title">📊 زانیاری گشتی</div>
+      <div class="stat-row"><span class="stat-label">کۆی ئەفسەران</span><span class="stat-val" id="st-total">٠</span></div>
+      <div class="stat-row"><span class="stat-label">کۆی یەکەکان</span><span class="stat-val" id="st-units">٠</span></div>
+      <div class="stat-row"><span class="stat-label">دوایین تۆمارکردن</span><span class="stat-val" id="st-last">—</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💾 پاشەکەوتکردن و هەناردەکردن</div>
+      <button class="btn btn-blue" onclick="exportJSON()" style="margin-bottom:8px">📤 هەناردەکردن (JSON فایل)</button>
+      <button class="btn btn-orange" onclick="document.getElementById('imp-file').click()" style="margin-bottom:8px">📥 هێنانەوەی داتا (JSON)</button>
+      <input type="file" id="imp-file" accept=".json" style="display:none" onchange="importJSON(this)">
+      <div class="export-hint">JSON فایلەکە پاشەکەوت بکە بۆ ئەوەی داتاکانت لەدەستنەچن.<br>ئەگەر مۆبایل گۆڕی یان براوزەر پاككرایەوە، داتاکان دەچن!</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗑 سڕینەوە</div>
+      <button class="btn btn-red" onclick="clearAll()">سڕینەوەی هەموو داتاکان</button>
+    </div>
+  </div>
+
+</div><!-- /pages -->
+
+<script>
+// ============ داتا ============
+var STORE_KEY = 'officers_v1';
+var officers = [];
+
+function load(){
+  try{ officers = JSON.parse(localStorage.getItem(STORE_KEY)||'[]'); }catch(e){ officers=[]; }
+  updateHdrCount();
+}
+
+function save(){
+  localStorage.setItem(STORE_KEY, JSON.stringify(officers));
+  localStorage.setItem(STORE_KEY+'_time', new Date().toISOString());
+  updateHdrCount();
+}
+
+function updateHdrCount(){
+  document.getElementById('hdr-count').textContent = officers.length + ' ئەفسەر';
+}
+
+// ============ تابەکان ============
+function goTab(name, btn){
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on')});
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('on')});
+  btn.classList.add('on');
+  document.getElementById('pg-'+name).classList.add('on');
+  if(name==='list') renderList();
+  if(name==='info') updateStats();
+}
+
+// ============ تۆمارکردنی دەستی ============
+function saveManual(){
+  var name = document.getElementById('f-name').value.trim();
+  var rank = document.getElementById('f-rank').value;
+  var file = document.getElementById('f-file').value.trim();
+  var unit = document.getElementById('f-unit').value;
+  var upen = document.getElementById('f-upen').value.trim();
+  var msg  = document.getElementById('msg-add');
+  if(!name||!rank||!file||!unit){
+    showMsg(msg,'err','⚠️ تکایە هەموو خانەکان پڕبکەرەوە!'); return;
+  }
+  officers.push({name:name,rank:rank,file:file,unit:unit,upen:upen,ts:Date.now()});
+  save();
+  showMsg(msg,'ok','✅ بە سەرکەوتوویی تۆمارکرا!');
+  document.getElementById('f-name').value='';
+  document.getElementById('f-file').value='';
+  document.getElementById('f-upen').value='';
+  document.getElementById('f-rank').selectedIndex=0;
+  document.getElementById('f-name').focus();
+}
+
+// ============ دەنگی تاکەکانە ============
+var activeRec = null;
+function micField(fieldId, type, btnId){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert('براوزەرەکەت پشتگیری دەنگ ناکات.\nChrome بەکارهێنە.'); return; }
+  var btn = document.getElementById(btnId);
+  if(activeRec){ activeRec.stop(); activeRec=null; btn.classList.remove('listening'); btn.textContent='🎤'; return; }
+  var rec = new SR();
+  rec.lang='ar-IQ'; rec.interimResults=false; rec.maxAlternatives=3;
+  activeRec=rec;
+  btn.classList.add('listening'); btn.textContent='⏹';
+  rec.onresult=function(e){
+    var t = e.results[0][0].transcript;
+    activeRec=null; btn.classList.remove('listening'); btn.classList.add('done'); btn.textContent='✅';
+    setTimeout(function(){btn.textContent='🎤';btn.classList.remove('done');},2000);
+    applyField(fieldId, type, t);
+  };
+  rec.onerror=function(){ activeRec=null; btn.classList.remove('listening'); btn.textContent='🎤'; };
+  rec.onend=function(){ if(activeRec){activeRec=null;btn.classList.remove('listening');btn.textContent='🎤';} };
+  rec.start();
+}
+
+function applyField(fieldId, type, text){
+  var el = document.getElementById(fieldId);
+  if(type==='text'){ el.value = text.trim(); }
+  else if(type==='num'){
+    var t = text.replace(/[٠-٩]/g,function(c){return '٠١٢٣٤٥٦٧٨٩'.indexOf(c)});
+    var n = t.match(/\d+/);
+    el.value = n ? n[0] : text;
+  }
+  else if(type==='rank'){ setSelect(fieldId, matchRank(text)); }
+  else if(type==='unit'){ setSelect(fieldId, matchUnit(text)); }
+}
+
+// ============ دەنگی جوملەی تەواو ============
+var fullRec=null;
+function toggleFullVoice(){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert('براوزەرەکەت پشتگیری دەنگ ناکات.\nChrome بەکارهێنە.'); return; }
+  var btn=document.getElementById('btn-vfull');
+  var anim=document.getElementById('v-anim');
+  var res=document.getElementById('v-result');
+  if(fullRec){ fullRec.stop(); fullRec=null; btn.textContent='دەست بکە — بلێ'; anim.classList.remove('active'); return; }
+  var rec=new SR();
+  rec.lang='ar-IQ'; rec.interimResults=true; rec.maxAlternatives=3;
+  fullRec=rec;
+  btn.textContent='⏹ ڕاگرتن';
+  anim.classList.add('active');
+  res.style.display='flex'; res.textContent='🎤 گوێ دەگرێت...';
+  rec.onresult=function(e){
+    var interim='', final='';
+    for(var i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript;
+      else interim+=e.results[i][0].transcript;
+    }
+    res.textContent = final||interim||'...';
+    if(final){ finishFull(final); }
+  };
+  rec.onerror=function(e){ fullRec=null; btn.textContent='دەست بکە — بلێ'; anim.classList.remove('active'); res.textContent='❌ هەڵە: '+e.error; };
+  rec.onend=function(){ if(fullRec){fullRec=null;btn.textContent='دەست بکە — بلێ';anim.classList.remove('active');} };
+  rec.start();
+}
+
+function finishFull(text){
+  fullRec=null;
+  document.getElementById('btn-vfull').textContent='دەست بکە — بلێ';
+  document.getElementById('v-anim').classList.remove('active');
+  var p = parse(text);
+  document.getElementById('vf-name').value = p.name||'';
+  document.getElementById('vf-file').value = p.file||'';
+  setSelect('vf-rank', p.rank||'');
+  setSelect('vf-unit', p.unit||'');
+  document.getElementById('vf-upen').value='';
+  document.getElementById('msg-voice').textContent='';
+  document.getElementById('msg-voice').className='msg';
+  document.getElementById('v-preview').style.display='block';
+}
+
+function saveVoice(){
+  var name=document.getElementById('vf-name').value.trim();
+  var rank=document.getElementById('vf-rank').value;
+  var file=document.getElementById('vf-file').value.trim();
+  var unit=document.getElementById('vf-unit').value;
+  var upen=document.getElementById('vf-upen').value.trim();
+  var msg=document.getElementById('msg-voice');
+  if(!name||!rank||!file||!unit){ showMsg(msg,'err','⚠️ خانەکان پڕبکەرەوە!'); return; }
+  officers.push({name:name,rank:rank,file:file,unit:unit,upen:upen,ts:Date.now()});
+  save();
+  showMsg(msg,'ok','✅ تۆمارکرا!');
+  document.getElementById('v-preview').style.display='none';
+  document.getElementById('v-result').style.display='none';
+  document.getElementById('v-result').textContent='';
+}
+
+// ============ پارسەکردنی دەنگ ============
+var RANKS=['ملازم اول','ملازم','نقیب رکن','نقیب','رائد رکن','رائد','مقدم رکن','مقدم','عقید رکن','عقید','عمید رکن','عمید','لیواء رکن','لیواء','فریق رکن','فریق'];
+var UNITS=['ب- دەڤەر','ب-کارگێری','ب-هەواڵگری','ب-هەماهەنگی و پەیوەندیەکان','ب-گەیاندن','ب-ڕاگەیاندن','ب-ژمێریاری سەربازی','ب- وردبینی و چاودێری','ب-میـرە','ب-خزمەت گوزاریەکان','ب-پرۆژەکان','ب-ئۆپەراسیۆنەکان','ب-بنکەی زانیاریەکان','ب-بەدواداچوون و پشکنین','ب-مەشـق','ب-پژیشکــی','فەوجی بەرگی و ئەرکەکان','بارەگای لیوای کۆماندۆ','سریەی پاسـەوانی','سریەی ئینزیباتی سەربازی','سریەی وەڵام دانەوەی خێرا','فەوجی 1 کۆماندۆ','فەوجی 2 کۆماندۆ','فەوجی 3 کۆماندۆ','لستی مێوان','فرقەی 1','فرقەی 3','فرقەی 5','فرقەی 7','فرقەی9','فرقەی 11'];
+var UNIT_KW=[['دەڤەر','ب- دەڤەر'],['كارگیری','ب-کارگێری'],['کارگێری','ب-کارگێری'],['هەواڵگری','ب-هەواڵگری'],['گەیاندن','ب-گەیاندن'],['ئۆپەراسیۆن','ب-ئۆپەراسیۆنەکان'],['پژیشک','ب-پژیشکــی'],['کۆماندۆ','بارەگای لیوای کۆماندۆ'],['مەشق','ب-مەشـق'],['میرە','ب-میـرە'],['ژمێریاری','ب-ژمێریاری سەربازی'],['پرۆژە','ب-پرۆژەکان'],['خزمەت','ب-خزمەت گوزاریەکان']];
+
+function matchRank(t){
+  for(var i=0;i<RANKS.length;i++) if(t.indexOf(RANKS[i])>=0) return RANKS[i];
+  return t;
+}
+function matchUnit(t){
+  var tl=t.toLowerCase();
+  for(var i=0;i<UNITS.length;i++){
+    var us=UNITS[i].replace(/ب-?\s*/,'').trim().toLowerCase();
+    if(us&&tl.indexOf(us)>=0) return UNITS[i];
+  }
+  for(var i=0;i<UNIT_KW.length;i++) if(t.indexOf(UNIT_KW[i][0])>=0) return UNIT_KW[i][1];
+  return t;
+}
+
+function parse(text){
+  var r={};
+  // پلە
+  for(var i=0;i<RANKS.length;i++){
+    if(text.indexOf(RANKS[i])>=0){r.rank=RANKS[i];break;}
+  }
+  // فایل
+  var tn=text.replace(/[٠-٩]/g,function(c){return '٠١٢٣٤٥٦٧٨٩'.indexOf(c)});
+  var nums=tn.match(/\d+/);
+  if(nums) r.file=nums[0];
+  // ناو
+  if(r.rank){
+    var ri=text.indexOf(r.rank);
+    var after=text.substring(ri+r.rank.length).trim();
+    var namePart=after.replace(/\d+/g,'').split(/یەکە|ژمارە|فایل|دەڤەر|فرقە|فەوج|بەشی|سریەی|بارەگای|کارگێری|هەواڵگری|ئۆپەراسیۆن/)[0].trim();
+    if(namePart) r.name=namePart;
+  }
+  // یەکە
+  for(var i=0;i<UNIT_KW.length;i++){
+    if(text.indexOf(UNIT_KW[i][0])>=0){r.unit=UNIT_KW[i][1];break;}
+  }
+  if(!r.unit){
+    for(var i=0;i<UNITS.length;i++){
+      var us=UNITS[i].replace(/ب-?\s*/,'').trim();
+      if(us&&text.indexOf(us)>=0){r.unit=UNITS[i];break;}
+    }
+  }
+  return r;
+}
+
+function setSelect(id,val){
+  var el=document.getElementById(id);
+  for(var i=0;i<el.options.length;i++) if(el.options[i].value===val){el.selectedIndex=i;return;}
+}
+
+// ============ لیست ============
+function renderList(){
+  var q  = document.getElementById('s-name').value.trim().toLowerCase();
+  var fr = document.getElementById('s-rank').value;
+  var fu = document.getElementById('s-unit').value;
+  var filtered = officers.filter(function(o){
+    return (!q||o.name.toLowerCase().indexOf(q)>=0) &&
+           (!fr||o.rank===fr) && (!fu||o.unit===fu);
+  });
+  document.getElementById('s-cnt').textContent = filtered.length+' ئەفسەر';
+  var body=document.getElementById('list-body');
+  if(!filtered.length){ body.innerHTML='<div class="nodata">هیچ ئەفسەرێک نەدۆزرایەوە</div>'; return; }
+  var h='';
+  filtered.forEach(function(o,i){
+    h+='<div class="ocard">';
+    h+='<div class="oname">'+(i+1)+'. '+o.name+'</div>';
+    h+='<div class="obadges">';
+    if(o.rank)h+='<span class="badge b-rank">'+o.rank+'</span>';
+    if(o.file)h+='<span class="badge b-file">فایل: '+o.file+'</span>';
+    if(o.unit)h+='<span class="badge b-unit">'+o.unit+'</span>';
+    if(o.upen)h+='<span class="badge b-upen">'+o.upen+'</span>';
+    h+='</div></div>';
+  });
+  body.innerHTML=h;
+}
+
+// ============ زانیاری ============
+function updateStats(){
+  document.getElementById('st-total').textContent = officers.length + ' ئەفسەر';
+  var units=new Set(officers.map(function(o){return o.unit}));
+  document.getElementById('st-units').textContent = units.size + ' یەکە';
+  var t=localStorage.getItem(STORE_KEY+'_time');
+  if(t){
+    var d=new Date(t);
+    document.getElementById('st-last').textContent = d.toLocaleDateString('ar-IQ')+' '+d.toLocaleTimeString('ar-IQ',{hour:'2-digit',minute:'2-digit'});
+  }
+}
+
+// ============ هەناردەکردن ============
+function exportJSON(){
+  if(!officers.length){ alert('هیچ داتایەک نییە!'); return; }
+  var blob=new Blob([JSON.stringify(officers,null,2)],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  a.href=url; a.download='officers_'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importJSON(input){
+  var file=input.files[0]; if(!file)return;
+  var r=new FileReader();
+  r.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!Array.isArray(data)){alert('فایلەکە دروست نییە!');return;}
+      if(confirm('داتاکانی کۆن بگۆڕدرێن بە '+data.length+' ئەفسەری نوێ؟')){
+        officers=data; save();
+        alert('✅ '+data.length+' ئەفسەر هێنرایەوە!');
+        updateStats();
+      }
+    }catch(e){alert('هەڵە لە خوێندنەوەی فایل!');}
+  };
+  r.readAsText(file);
+  input.value='';
+}
+
+function clearAll(){
+  if(!officers.length){alert('هیچ داتایەک نییە!');return;}
+  if(confirm('ئایا دڵنیایت هەموو '+officers.length+' ئەفسەر دەسڕیتەوە؟\n\nئەم کارە گەڕانەوەی نییە!')){
+    officers=[]; save(); updateStats();
+    alert('سڕایەوە.');
+  }
+}
+
+// ============ یارمەتی ============
+function showMsg(el, type, text){
+  el.className='msg '+type; el.textContent=text;
+  if(type==='ok') setTimeout(function(){el.textContent='';el.className='msg';},3000);
+}
+
+// ============ دەستپێکردن ============
+load();
+</script>
+</body>
+</html>
